@@ -253,7 +253,7 @@ if selected == "Evaluation Form":
         st.session_state.clear()  # Reset all Streamlit inputs
         st.rerun()  # Refresh the app
     
-    # with open("/mount/src/applied-research-projects/16_Class_Evaluation/evaluation_template.docx", "rb") as docx_file:
+    # with open("/mount/src/facultyeval/evaluation_template.docx", "rb") as docx_file:
     #         st.download_button(
     #             label="📄 Download Blank Evaluation Template (Word)",
     #             data=docx_file,
