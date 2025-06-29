@@ -49,12 +49,13 @@ def append_row_to_sheet(sheet, evaluation_data):
 
 
 def append_to_google_sheet(sheet,evaluation_data):
-    try:
-        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name("service_account.json", scope)
-        client = gspread.authorize(creds)
+    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    creds = ServiceAccountCredentials.from_json_keyfile_name("service_account.json", scope)
+    client = gspread.authorize(creds)
 
-        sheet = client.open("FacultyEval").worksheet(sheet)
+    sheet = client.open("FacultyEval").worksheet(sheet)
+    try:
+        
        #row = list(data.values())
         row = [
         evaluation_data["faculty"],
