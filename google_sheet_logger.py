@@ -72,4 +72,4 @@ def append_to_google_sheet(sheet,evaluation_data):
         sheet.append_row(row, value_input_option="USER_ENTERED")
      #   st.success("✅ Data successfully appended to Google Sheet.")
     except Exception as e:
-        st.error(f"❌ System Error failed. But PDF is generated")
+        st.error(f"❌ System Error failed. But PDF is generated ",e)
