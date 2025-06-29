@@ -253,7 +253,7 @@ if selected == "Evaluation Form":
         st.session_state.clear()  # Reset all Streamlit inputs
         st.rerun()  # Refresh the app
     
-    # with open("/mount/src/facultyeval/evaluation_template.docx", "rb") as docx_file:
+    # with open("/mount/src/applied-research-projects/16_Class_Evaluation/evaluation_template.docx", "rb") as docx_file:
     #         st.download_button(
     #             label="📄 Download Blank Evaluation Template (Word)",
     #             data=docx_file,
@@ -292,6 +292,7 @@ if selected == "Evaluation Form":
         if df is not None:
             st.success("✅ File loaded from Google Drive.")
             flag=True
+    flag2=False
     if flag:
         try:
             faculty_list = df["faculty"].dropna().unique().tolist()
@@ -301,8 +302,10 @@ if selected == "Evaluation Form":
             formatted = dt_obj.strftime("%B %d, %Y at %I:%M %p") 
             default_date = dt_obj.date()  # e.g., datetime.date(2024, 6, 27)
             default_time = dt_obj.time()  # e.g., datetime.time(10, 30)
+            flag2=True
         except:
             st.error("Error reading file. Make sure to use the template. Double check the entries")
+            flag2=False
     
     # Display form fields
     st.subheader("Faculty Information")
@@ -476,77 +479,140 @@ if selected == "Evaluation Form":
         append_to_google_sheet("Evaluation Submissions",data)
     
     
-    if df is not None:
-        zip_path = "faculty_evaluations.zip"
-        with zipfile.ZipFile(zip_path, "w") as zipf:
-            for i, row in df.iterrows():
-                data = {
-                    "faculty": row["faculty"],
-                    "department": row["department"],
-                    "subject": row["subject"],
-                    "date_time": row["date_time"],
-                    "topic": row["topic"],
-                    "observer": row["observer"],
-                    "position": row["position"],
-                    "questions": {
-                        "skills": [
-                            "Explains the lesson clearly and to the point",
-                            "Uses a variety of teaching techniques appropriate to student needs and subject matter",
-                            "Demonstrates ability to communicate effectively using appropriate, clear and understandable verbal, non-verbal, and writing skills",
-                            "Summarizes lessons effectively",
-                            "Delivers lectures/lessons in a stimulating/interesting manner",
-                            "Asks challenging/stimulating/thought-provoking questions"
-                        ],
-                        "relationship": [
-                            "Gives constructive feedback to students",
-                            "Simplifies difficult topics",
-                            "Displays positive relationship with students",
-                            "Shows respect for the students as persons",
-                            "Appears comfortable and at ease in handling the class"
-                        ],
-                        "mastery": [
-                            "Displays comprehensive/thorough knowledge of the subject matter to achieve curricular objectives",
-                            "Raises problems and issues relevant to the topic(s) of discussion",
-                            "Relates the subject matter to other related topics",
-                            "Explains the subject matter with depth",
-                            "Presents the latest developments in areas under discussion"
-                        ],
-                        "management": [
-                            "Displays effective techniques to promote self-discipline and maintain appropriate behavior (e.g., mutual respect) among the students",
-                            "Presents lesson in a clear, logical and appropriately structured format",
-                            "Utilizes class time efficiently",
-                            "Commands respect from students",
-                            "Conducts class with minimum disruptions from the students"
-                        ]
-                    },
-                    "scores": {
-                        "skills": [row[f"skills_{j}"] for j in range(1, 7)],
-                        "relationship": [row[f"relationship_{j}"] for j in range(1, 6)],
-                        "mastery": [row[f"mastery_{j}"] for j in range(1, 6)],
-                        "management": [row[f"management_{j}"] for j in range(1, 6)]
-                    },
-                    "means": {
-                        "skills": round(np.mean([row[f"skills_{j}"] for j in range(1, 7)]), 2),
-                        "relationship": round(np.mean([row[f"relationship_{j}"] for j in range(1, 6)]), 2),
-                        "mastery": round(np.mean([row[f"mastery_{j}"] for j in range(1, 6)]), 2),
-                        "management": round(np.mean([row[f"management_{j}"] for j in range(1, 6)]), 2),
-                    }
-                }
-                data["means"]["overall"] = round(np.mean(list(data["means"].values())), 2)
-                append_to_google_sheet("Evaluation Submissions",data)
-                pdf_bytes = generate_filled_pdf(data).getvalue()
-                filename = f"{row['faculty'].replace(' ', '_')}.pdf"
-                zipf.writestr(filename, pdf_bytes)
-    
-        with open("faculty_evaluations.zip", "rb") as f:
-            zip_bytes = f.read()
-            st.download_button(
-                label="📥 Download All Evaluation PDFs (ZIP)",
-                data=zip_bytes,
-                file_name="faculty_evaluations.zip",
-                mime="application/zip",
-                key="zip_download" 
-                )
+    # if df is not None:
+    #     zip_path = "faculty_evaluations.zip"
+    #     with zipfile.ZipFile(zip_path, "w") as zipf:
+    #         for i, row in df.iterrows():
+    #             data = {
+    #                 "faculty": row["faculty"],
+    #                 "department": row["department"],
+    #                 "subject": row["subject"],
+    #                 "date_time": row["date_time"],
+    #                 "topic": row["topic"],
+    #                 "observer": row["observer"],
+    #                 "position": row["position"],
+    #                 "questions": {
+    #                     "skills": [
+    #                         "Explains the lesson clearly and to the point",
+    #                         "Uses a variety of teaching techniques appropriate to student needs and subject matter",
+    #                         "Demonstrates ability to communicate effectively using appropriate, clear and understandable verbal, non-verbal, and writing skills",
+    #                         "Summarizes lessons effectively",
+    #                         "Delivers lectures/lessons in a stimulating/interesting manner",
+    #                         "Asks challenging/stimulating/thought-provoking questions"
+    #                     ],
+    #                     "relationship": [
+    #                         "Gives constructive feedback to students",
+    #                         "Simplifies difficult topics",
+    #                         "Displays positive relationship with students",
+    #                         "Shows respect for the students as persons",
+    #                         "Appears comfortable and at ease in handling the class"
+    #                     ],
+    #                     "mastery": [
+    #                         "Displays comprehensive/thorough knowledge of the subject matter to achieve curricular objectives",
+    #                         "Raises problems and issues relevant to the topic(s) of discussion",
+    #                         "Relates the subject matter to other related topics",
+    #                         "Explains the subject matter with depth",
+    #                         "Presents the latest developments in areas under discussion"
+    #                     ],
+    #                     "management": [
+    #                         "Displays effective techniques to promote self-discipline and maintain appropriate behavior (e.g., mutual respect) among the students",
+    #                         "Presents lesson in a clear, logical and appropriately structured format",
+    #                         "Utilizes class time efficiently",
+    #                         "Commands respect from students",
+    #                         "Conducts class with minimum disruptions from the students"
+    #                     ]
+    #                 },
+    #                 "scores": {
+    #                     "skills": [row[f"skills_{j}"] for j in range(1, 7)],
+    #                     "relationship": [row[f"relationship_{j}"] for j in range(1, 6)],
+    #                     "mastery": [row[f"mastery_{j}"] for j in range(1, 6)],
+    #                     "management": [row[f"management_{j}"] for j in range(1, 6)]
+    #                 },
+    #                 "means": {
+    #                     "skills": round(np.mean([row[f"skills_{j}"] for j in range(1, 7)]), 2),
+    #                     "relationship": round(np.mean([row[f"relationship_{j}"] for j in range(1, 6)]), 2),
+    #                     "mastery": round(np.mean([row[f"mastery_{j}"] for j in range(1, 6)]), 2),
+    #                     "management": round(np.mean([row[f"management_{j}"] for j in range(1, 6)]), 2),
+    #                 }
+    #             }
+    #             data["means"]["overall"] = round(np.mean(list(data["means"].values())), 2)
+    #             append_to_google_sheet("Evaluation Submissions",data)
+    #             pdf_bytes = generate_filled_pdf(data).getvalue()
+    #             filename = f"{row['faculty'].replace(' ', '_')}.pdf"
+    #             zipf.writestr(filename, pdf_bytes)
+    if flag2 and df is not None:         
+          if st.button("Generate All PDFs"):                          
+              zip_path = "faculty_evaluations.zip"
+              with zipfile.ZipFile(zip_path, "w") as zipf:
+                        for i, row in df.iterrows():
+                            data = {
+                                "faculty": row["faculty"],
+                                "department": row["department"],
+                                "subject": row["subject"],
+                                "date_time": row["date_time"],
+                                "topic": row["topic"],
+                                "observer": row["observer"],
+                                "position": row["position"],
+                                "questions": {
+                                    "skills": [
+                                        "Explains the lesson clearly and to the point",
+                                        "Uses a variety of teaching techniques appropriate to student needs and subject matter",
+                                        "Demonstrates ability to communicate effectively using appropriate, clear and understandable verbal, non-verbal, and writing skills",
+                                        "Summarizes lessons effectively",
+                                        "Delivers lectures/lessons in a stimulating/interesting manner",
+                                        "Asks challenging/stimulating/thought-provoking questions"
+                                    ],
+                                    "relationship": [
+                                        "Gives constructive feedback to students",
+                                        "Simplifies difficult topics",
+                                        "Displays positive relationship with students",
+                                        "Shows respect for the students as persons",
+                                        "Appears comfortable and at ease in handling the class"
+                                    ],
+                                    "mastery": [
+                                        "Displays comprehensive/thorough knowledge of the subject matter to achieve curricular objectives",
+                                        "Raises problems and issues relevant to the topic(s) of discussion",
+                                        "Relates the subject matter to other related topics",
+                                        "Explains the subject matter with depth",
+                                        "Presents the latest developments in areas under discussion"
+                                    ],
+                                    "management": [
+                                        "Displays effective techniques to promote self-discipline and maintain appropriate behavior (e.g., mutual respect) among the students",
+                                        "Presents lesson in a clear, logical and appropriately structured format",
+                                        "Utilizes class time efficiently",
+                                        "Commands respect from students",
+                                        "Conducts class with minimum disruptions from the students"
+                                    ]
+                                },
+                                "scores": {
+                                    "skills": [row[f"skills_{j}"] for j in range(1, 7)],
+                                    "relationship": [row[f"relationship_{j}"] for j in range(1, 6)],
+                                    "mastery": [row[f"mastery_{j}"] for j in range(1, 6)],
+                                    "management": [row[f"management_{j}"] for j in range(1, 6)]
+                                },
+                                "means": {
+                                    "skills": round(np.mean([row[f"skills_{j}"] for j in range(1, 7)]), 2),
+                                    "relationship": round(np.mean([row[f"relationship_{j}"] for j in range(1, 6)]), 2),
+                                    "mastery": round(np.mean([row[f"mastery_{j}"] for j in range(1, 6)]), 2),
+                                    "management": round(np.mean([row[f"management_{j}"] for j in range(1, 6)]), 2),
+                                }
+                            }
+                            data["means"]["overall"] = round(np.mean(list(data["means"].values())), 2)
+                            append_to_google_sheet("Evaluation Submissions",data)
+                            pdf_bytes = generate_filled_pdf(data).getvalue()
+                            filename = f"{row['faculty'].replace(' ', '_')}.pdf"
+                            zipf.writestr(filename, pdf_bytes)              
+                
+              with open("faculty_evaluations.zip", "rb") as f:
+                zip_bytes = f.read()
+                st.download_button(
+                    label="📥 Download All Evaluation PDFs (ZIP)",
+                    data=zip_bytes,
+                    file_name="faculty_evaluations.zip",
+                    mime="application/zip",
+                    key="zip_download" 
+                    )
+               
 
 elif selected == "Feedback":
     st.title("💬 Feedback")
