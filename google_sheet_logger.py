@@ -49,14 +49,13 @@ def append_row_to_sheet(sheet, evaluation_data):
 
 
 def append_to_google_sheet(sheet,evaluation_data):
-    save_service_account_from_env(secret_name="GOOGLE_SERVICE_ACCOUNT", filename="service_account.json")
-    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    creds = ServiceAccountCredentials.from_json_keyfile_name("service_account.json", scope)
-    client = gspread.authorize(creds)
+   try:
+        save_service_account_from_env(secret_name="GOOGLE_SERVICE_ACCOUNT", filename="service_account.json")
+        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+        creds = ServiceAccountCredentials.from_json_keyfile_name("service_account.json", scope)
+        client = gspread.authorize(creds)
 
-    sheet = client.open("FacultyEval").worksheet(sheet)
-    try:
-        
+        sheet = client.open("FacultyEval").worksheet(sheet)
        #row = list(data.values())
         row = [
         evaluation_data["faculty"],
@@ -73,5 +72,6 @@ def append_to_google_sheet(sheet,evaluation_data):
             ]
         sheet.append_row(row, value_input_option="USER_ENTERED")
      #   st.success("✅ Data successfully appended to Google Sheet.")
-    except Exception as e:
-        st.error(f"❌ System Error failed. But PDF is generated ",e)
+   except Exception as e:
+        pass
+        #st.error(f"❌ System Error failed. But PDF is generated")
