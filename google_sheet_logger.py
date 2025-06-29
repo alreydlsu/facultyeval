@@ -49,6 +49,7 @@ def append_row_to_sheet(sheet, evaluation_data):
 
 
 def append_to_google_sheet(sheet,evaluation_data):
+    save_service_account_from_env(secret_name="GOOGLE_SERVICE_ACCOUNT", filename="service_account.json")
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     creds = ServiceAccountCredentials.from_json_keyfile_name("service_account.json", scope)
     client = gspread.authorize(creds)
