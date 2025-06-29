@@ -1,0 +1,13 @@
+streamlit
+streamlit-drawable-canvas
+reportlab
+Pillow
+python-dotenv
+matplotlib
+streamlit_option_menu
+google-auth 
+google-auth-oauthlib 
+google-auth-httplib2 
+google-api-python-client
+gspread 
+oauth2client
